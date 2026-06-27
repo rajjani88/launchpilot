@@ -18,7 +18,7 @@ export function useAuditsViewModel(appId: string) {
       const token = await getToken();
       if (!token) return;
 
-      const data = await AuditRepository.getAuditHistory(appId);
+      const data = await AuditRepository.getAuditHistory(appId, token);
       setHistory(data);
     } catch (err: any) {
       setError(err.message || "Failed to load audit history");
@@ -34,7 +34,7 @@ export function useAuditsViewModel(appId: string) {
       const token = await getToken();
       if (!token) return;
 
-      await AuditRepository.triggerAudit(appId);
+      await AuditRepository.triggerAudit(appId, token);
       
       // We could set up polling here, but for now we just refresh after 5 seconds
       // as a simple mock for the background job. In a real app, you'd use websockets or SSE.
