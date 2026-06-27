@@ -139,7 +139,7 @@ export function CreateAppDialog({ projectId, onAppCreated }: CreateAppDialogProp
             />
 
             <div className="space-y-2 pt-2 border-t border-border/50">
-              <FormLabel>App Binary (Optional)</FormLabel>
+              <label className="text-sm font-medium leading-none">App Binary (Optional)</label>
               <div className="flex items-center gap-4">
                 <Input 
                   type="file" 

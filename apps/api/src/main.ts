@@ -4,6 +4,7 @@ import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   
   // Apply Clerk middleware to all routes
   app.use(ClerkExpressWithAuth());

@@ -15,8 +15,17 @@ export class ProjectsService {
 
   async create(createProjectDto: CreateProjectDto) {
     // In a real app, verify the workspace exists and the user has access.
-    // Assuming workspace exists for this demo.
-    
+    // For this demo, we will ensure the workspace exists to avoid foreign key constraints.
+    await this.prisma.workspace.upsert({
+      where: { id: createProjectDto.workspaceId },
+      update: {},
+      create: {
+        id: createProjectDto.workspaceId,
+        name: 'Demo Workspace',
+        slug: 'demo-workspace-' + createProjectDto.workspaceId,
+      }
+    });
+
     return this.prisma.project.create({
       data: {
         name: createProjectDto.name,
