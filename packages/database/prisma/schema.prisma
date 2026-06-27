@@ -1,0 +1,281 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------
+// Enums
+// -------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+  OWNER
+}
+
+enum Platform {
+  ANDROID
+  IOS
+}
+
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PRO
+  AGENCY
+  ENTERPRISE
+}
+
+enum ReportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// -------------------------------------
+// Core Models
+// -------------------------------------
+
+model User {
+  id        String   @id @default(uuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaces   WorkspaceMember[]
+  apiKeys      ApiKey[]
+  activities   Activity[]
+  subscriptions Subscription[]
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members       WorkspaceMember[]
+  projects      Project[]
+  subscriptions Subscription[]
+  usage         Usage?
+  credits       Credit?
+}
+
+model WorkspaceMember {
+  id          String   @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  workspaceId String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  apps      App[]
+}
+
+model App {
+  id          String   @id @default(uuid())
+  projectId   String
+  platform    Platform
+  storeUrl    String?
+  bundleId    String?
+  name        String
+  category    String?
+  country     String?
+  language    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project      Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploads      Upload[]
+  reports      Report[]
+  auditHistory AuditHistory[]
+  metadata     Metadata?
+  competitors  Competitor[]
+}
+
+// -------------------------------------
+// Sub-Entities & Assets
+// -------------------------------------
+
+model Upload {
+  id        String   @id @default(uuid())
+  appId     String
+  type      String   // e.g., 'APK', 'IPA', 'SCREENSHOT', 'ICON'
+  url       String
+  filename  String
+  size      Int
+  createdAt DateTime @default(now())
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+}
+
+model Metadata {
+  id               String   @id @default(uuid())
+  appId            String   @unique
+  title            String?
+  subtitle         String?
+  shortDescription String?
+  longDescription  String?
+  promotionalText  String?
+  whatsNew         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  app      App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  keywords Keyword[]
+}
+
+model Keyword {
+  id         String   @id @default(uuid())
+  metadataId String
+  word       String
+  rank       Int?
+  volume     Int?
+
+  metadata Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+}
+
+// -------------------------------------
+// Analysis & Reports
+// -------------------------------------
+
+model Report {
+  id        String       @id @default(uuid())
+  appId     String
+  type      String       // e.g., 'ASO', 'POLICY', 'UIUX'
+  status    ReportStatus @default(PENDING)
+  resultUrl String?      // URL to JSON or PDF result
+  score     Float?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+}
+
+model AuditHistory {
+  id        String   @id @default(uuid())
+  appId     String
+  overallScore Float
+  asoScore     Float
+  uiScore      Float
+  uxScore      Float
+  createdAt DateTime @default(now())
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+}
+
+model Competitor {
+  id        String   @id @default(uuid())
+  appId     String
+  name      String
+  storeUrl  String
+  createdAt DateTime @default(now())
+
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+}
+
+// -------------------------------------
+// Billing & Usage
+// -------------------------------------
+
+model Subscription {
+  id              String           @id @default(uuid())
+  workspaceId     String
+  userId          String?          // If personal subscription
+  tier            SubscriptionTier @default(FREE)
+  stripeCustId    String?
+  stripeSubId     String?
+  status          String           // e.g., 'active', 'canceled'
+  currentPeriodEnd DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id             String   @id @default(uuid())
+  subscriptionId String
+  amount         Float
+  currency       String   @default("USD")
+  status         String   // e.g., 'paid', 'open'
+  pdfUrl         String?
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id          String   @id @default(uuid())
+  workspaceId String   @unique
+  apiCalls    Int      @default(0)
+  storageUsed Int      @default(0) // in bytes
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Credit {
+  id          String   @id @default(uuid())
+  workspaceId String   @unique
+  balance     Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// -------------------------------------
+// System & Logs
+// -------------------------------------
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  userId    String
+  keyHash   String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  lastUsed  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entityId  String?
+  entityType String?
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

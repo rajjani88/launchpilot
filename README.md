@@ -1,159 +1,81 @@
-# Turborepo starter
+# LaunchPilot 🚀
 
-This Turborepo starter is maintained by the Turborepo core team.
+LaunchPilot is an AI-Powered Pre-Launch Verification platform for Mobile Apps. It analyzes your app using advanced LLMs (OpenAI, Anthropic, Gemini) and provides actionable insights and health scores before you submit it to the App Store or Google Play.
 
-## Using this example
+## 🏗 Architecture
 
-Run the following command:
+This project is structured as a **Turborepo** monorepo containing:
 
-```sh
-npx create-turbo@latest
+- `apps/web`: Next.js 15 frontend using React 19, TailwindCSS, and shadcn/ui. Built with strict MVVM principles.
+- `apps/api`: NestJS backend handling REST API requests, background queue processing, AI routing, Stripe, and Email.
+- `packages/database`: Prisma ORM and PostgreSQL schema.
+- `packages/config`: Centralized application configuration.
+
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js 15, React 19, TypeScript, TailwindCSS, shadcn, Framer Motion, Recharts
+- **Backend:** Node.js, NestJS, BullMQ
+- **Database:** PostgreSQL, Prisma
+- **Auth:** Clerk
+- **Storage:** Supabase Storage
+- **Payments:** Stripe
+- **Email:** Resend
+- **AI:** OpenAI, Anthropic, Gemini
+- **Deployment:** Docker
+
+## 🚀 Getting Started (Local Development)
+
+### 1. Prerequisites
+- Node.js >= 18
+- Docker Desktop (for Postgres & Redis)
+- A Clerk Account (for auth)
+- A Supabase Account (for storage)
+
+### 2. Environment Variables
+Copy the `.env.example` file to the root of your project:
+```bash
+cp .env.example .env
+```
+Fill in the required keys, specifically:
+- `DATABASE_URL`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` & `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- AI API Keys (`OPENAI_API_KEY`, etc.)
+
+### 3. Start Infrastructure
+Start the PostgreSQL database and Redis queue:
+```bash
+docker-compose up -d db redis
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+### 4. Setup Database
+Navigate to the database package and push the schema:
+```bash
+cd packages/database
+npx prisma db push
+npx prisma generate
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-npm dlx turbo build
-npm exec turbo build
+### 5. Install Dependencies & Run
+From the root directory:
+```bash
+npm install
+npm run dev
 ```
+- Frontend will run on `http://localhost:3000`
+- Backend will run on `http://localhost:3001`
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## 🐳 Production Deployment
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+To run the entire application stack using Docker:
 
-```sh
-turbo build --filter=docs
+1. Ensure your `.env` is fully configured with production keys.
+2. Build and start the containers:
+```bash
+docker-compose up --build -d
 ```
+3. The app is now running in isolated containers ready for a VPS or cloud provider.
 
-Without global `turbo`:
+## ⚙️ Configuration
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Application settings (pricing plans, feature flags) can be modified in `packages/config/launchpilot.config.ts`.

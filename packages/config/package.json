@@ -1,0 +1,9 @@
+{
+  "name": "@launchpilot/config",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "typescript": "^5.0.0"
+  }
+}
