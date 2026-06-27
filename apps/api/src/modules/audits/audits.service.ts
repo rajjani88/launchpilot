@@ -25,9 +25,17 @@ export class AuditsService {
   }
 
   async getAuditHistory(appId: string) {
-    return this.prisma.auditHistory.findMany({
+    const records = await this.prisma.auditHistory.findMany({
       where: { appId },
       orderBy: { createdAt: 'desc' },
     });
+
+    return records.map(record => ({
+      id: record.id,
+      appId: record.appId,
+      score: record.overallScore,
+      findings: "AI analysis findings placeholder. Note: the actual findings are not stored in the AuditHistory table.",
+      createdAt: record.createdAt,
+    }));
   }
 }

@@ -1,4 +1,4 @@
-import { Platform } from 'database';
+import { Platform } from '@prisma/client';
 
 export class CreateAppDto {
   projectId: string;

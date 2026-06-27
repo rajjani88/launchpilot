@@ -37,8 +37,10 @@ export class AuditProcessor extends WorkerHost {
       await this.prisma.auditHistory.create({
         data: {
           appId,
-          score: 85, // Placeholder, in reality parsed from AI output
-          findings: JSON.stringify({ analysis: analysisResult }),
+          overallScore: 85, // Placeholder, in reality parsed from AI output
+          asoScore: 85,
+          uiScore: 85,
+          uxScore: 85,
         }
       });
 

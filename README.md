@@ -27,7 +27,7 @@ This project is structured as a **Turborepo** monorepo containing:
 
 ### 1. Prerequisites
 - Node.js >= 18
-- Docker Desktop (for Postgres & Redis)
+- Docker Desktop (for Redis)
 - A Clerk Account (for auth)
 - A Supabase Account (for storage)
 
@@ -43,9 +43,9 @@ Fill in the required keys, specifically:
 - AI API Keys (`OPENAI_API_KEY`, etc.)
 
 ### 3. Start Infrastructure
-Start the PostgreSQL database and Redis queue:
+Start the Redis queue:
 ```bash
-docker-compose up -d db redis
+docker-compose up -d redis
 ```
 
 ### 4. Setup Database

@@ -74,7 +74,7 @@ export function AuditResults({ appId }: AuditResultsProps) {
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center py-6">
               <div className="relative flex items-center justify-center w-32 h-32 rounded-full border-8 border-primary/20">
-                <span className="text-4xl font-bold text-primary">{latestAudit.score}</span>
+                <span className="text-4xl font-bold text-primary">{latestAudit?.score}</span>
               </div>
               <p className="text-sm text-muted-foreground mt-4 flex items-center">
                 <CheckCircle className="h-4 w-4 text-emerald-500 mr-2" />
@@ -114,12 +114,12 @@ export function AuditResults({ appId }: AuditResultsProps) {
           <Card className="col-span-1 md:col-span-3">
             <CardHeader>
               <CardTitle>Latest AI Findings</CardTitle>
-              <CardDescription>Date: {new Date(latestAudit.createdAt).toLocaleString()}</CardDescription>
+              <CardDescription>Date: {latestAudit?.createdAt ? new Date(latestAudit.createdAt).toLocaleString() : ''}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-lg">
                 <pre className="whitespace-pre-wrap font-sans text-sm">
-                  {latestAudit.findings}
+                  {latestAudit?.findings}
                 </pre>
               </div>
             </CardContent>

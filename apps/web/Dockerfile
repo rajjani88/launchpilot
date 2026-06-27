@@ -1,11 +1,12 @@
 FROM node:23-alpine AS builder
 
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json turbo.json ./
+COPY package.json package-lock.json turbo.json ./
 COPY packages ./packages
 COPY apps/web ./apps/web
 
-RUN npm ci
+RUN npm install
+RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
 RUN npm run build --workspace=apps/web
 
 FROM node:23-alpine AS runner
